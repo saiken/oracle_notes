@@ -108,3 +108,8 @@
 　http://qiita.com/koitaro/items/c8bf8eb1e67e78890a5c
 　↑のパーティションの変更は↓のコマンドで実施
 　http://qiita.com/takara@github/items/77182fe9d83142be5c5e
+
+
+その他
+  GUI版で漢字が文字化けする場合、下記コマンドで日本語フォントなどをインストール
+  yum groupinstall "Japanese Support"
