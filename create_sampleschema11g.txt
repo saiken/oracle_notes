@@ -1,0 +1,20 @@
+※DBCAでデータベースを作成する場合は、
+　オプションでインストール可能なため、以下の手順は不要です。
+
+1.以下から、「linux_11gR2_examples.zip」をダウンロード
+http://www.oracle.com/technetwork/database/enterprise-edition/downloads/112010-linuxsoft-085393.html?ssSourceSiteId=otnjp
+
+
+2.展開し、runinstaller をGUIで実行
+　ORACLE_HOMEのパスを入力して進めば、
+　$ORACLE_HOME/demo/schema/ 配下にスクリプトが展開されます。
+
+3.適当な表領域を作成（任意）
+CREATE TABLESPACE example
+     DATAFILE '/u01/app/oracle/oradata/orcl/example01.dbf'
+     SIZE 5M autoextend on;
+
+4.SYSでSQLPLUSに接続し、下記スクリプトを実行
+　SQL> @?/demo/schema/mksample.sql
+　サンプルのパスワードや使用する表領域が対話形式で聞かれるので、
+　適当に答えると、サンプルのインストール完了です。

@@ -1,0 +1,110 @@
+1. VirtualBox インストール
+  ↓からダウンロードし、ダブルクリックしてインストール
+  http://www.oracle.com/technetwork/server-storage/virtualbox/downloads/index.html?ssSourceSiteId=otnjp
+
+2. Vagrant インストール
+  ↓からダウンロードし、ダブルクリックしてインストール
+  https://www.vagrantup.com/downloads.html
+
+3. veewee コマンドのインストール(Mac)
+  sudo gem install veewee --no-ri --no-rdoc
+  ※rubyenvとかで綺麗に入れることも考えたけど、とりあえず。
+
+  真っさらなOS に必要なものを入れたbox をつくってくれる
+
+  veewee に関しては↓が詳しい
+  http://qiita.com/IK12_info/items/d1267faf3db527757a47
+  
+4. veewee でvmを作成
+  template を取得
+  veewee vbox define 'oracleLinux5_10_i386' 'OracleLinux-5.10-i386-DVD' 
+
+
+  vm作成
+  veewee vbox build 'oracleLinux5_10_i386'
+
+  ※net/scp がないってエラーになったので↓でインストール
+  sudo gem install net-scp --no-ri --no-rdoc
+
+  ※box作成は、普通に海外のミラーサイトからisoを取得するので、時間がかかる
+
+  ssh ※パスワードはveewee
+  veewee vbox ssh oracleLinux5_10_i386
+
+5. vagrant のbox作成
+  vagrant package --base oracleLinux5_10_i386 --output oracleLinux5_10_i386.box
+
+6. vagrant に登録し、起動
+  vagrant box add oracleLinux5_10_i386 oracleLinux5_10_i386.box
+
+  作業用ディレクトリに移動
+
+  Vagrantfile の設定
+  ホストオンリーアダプターの設定をコメント外す
+
+  vagran 経由で起動
+  vagrant up --provision
+  ※Authentication failure でリトライ続くようなら、vagrant ssh で鍵認証できているか確認
+　　→　guestOS側で公開鍵の権限が600 になってるか確認
+
+
+7. otn からOracleをダウンロード
+  http://www.oracle.com/technetwork/jp/database/database-11g/downloads/index.html
+
+  vagrant のsynched_folder 経由でGuestOS に持ってくる
+
+8. Vagrantfile の設定変更
+  memory を2Gに変更
+  config.vm.provider "virtualbox" do |vb|    ←このあたりを変更
+
+  ・gui をtrue に変更
+  ・cpuを２つに変更
+
+  config.vm.provider "virtualbox" do |vb|
+    # Display the VirtualBox GUI when booting the machine
+    vb.gui = true
+
+    # Customize the amount of memory on the VM:
+    vb.memory = "2048"
+    vb.cpus = 2
+    vb.ioapic = "on"
+
+  end
+
+
+9. SELinux1,iptables 無効化
+  chkconfig iptables off
+  ※SELinux はデフォルトでオフになっていた
+
+10. preinstall を実行するためのyum の設定
+  # cd /etc/yum.repos.d/
+  # wget http://public-yum.oracle.com/public-yum-el5.repo
+  # vi public-yum-el5.repo
+  [el5_u5_base] と [ol5_u5_base] [el5_addons] と [el5_oracle_addons] も enabled=1 にした。
+
+11. oracleユーザーの設定
+  yum でpreinstall を実行
+  # yum install oracle-validated
+  ※oracle ユーザーの作成やソフトウェア要件で必要なrpm をインストール
+
+  # groupadd -g 1101 oper
+  # groupadd -g 1102 backupdba
+  # groupadd -g 1103 dgdba
+  # groupadd -g 1104 kmdba
+
+  # usermod -u 54321 -g oinstall -G dba,backupdba,dgdba,kmdba oracle
+  # id oracle
+    uid=54321(oracle) gid=54321(oinstall) groups=54321(oinstall),54322(dba),1102(backupdba),1103(dgdba),1104(kmdba)
+
+  # chown -R oracle:oinstall /u01/app/oracle
+  # chmod -R 775 /u01
+
+12. runinstaller を実行
+
+  vagrant のsynched_folder 経由でOTNから取得したOracle のzip を移動
+  runInstaller を実行
+
+　※ディスクが足りなくてエラーになったので、拡張した
+　http://qiita.com/koitaro/items/c8bf8eb1e67e78890a5c
+　↑のパーティションの変更は↓のコマンドで実施
+　http://qiita.com/takara@github/items/77182fe9d83142be5c5e
