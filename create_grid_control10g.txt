@@ -81,3 +81,10 @@ VMを再起動すると、DBが起動していないので、下記実行
   export ORACLE_HOME=/u01/app/oracle/gridcontrol/db10g
   /u01/app/oracle/gridcontrol/db10g/bin/sqlplus / as sysdba
   SQL> startup
+
+ssh でパスワードなしでログインできるように下記実行
+  cd OMS_HOME/sysman/prov/resources/scripts
+  ./sshUserSetup.sh -hosts "oracle.vagrantup.com" -user oracle
+
+  詳しくは↓マニュアル参照
+  http://otndnld.oracle.co.jp/document/products/oem10/1020/generic/E05934-01/app_agent_deploy_prereq.htm
