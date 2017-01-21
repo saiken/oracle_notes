@@ -31,10 +31,11 @@ LANGの設定変更(日本語だと、ウインドウ内に収まらなず、や
    ※適当
 
   precheckでカーネルパラメータは正しく設定しておくこと
-  vim /etc/sysctl.conf
-   net.ipv4.ip_local_port_range = 1024 65500  ⇦ 修正
-  /sbin/sysctl -p で反映
-  /sbin/sysctl -a | grep xxxx  で確認
+  下記を修正
+    vim /etc/sysctl.conf
+     net.ipv4.ip_local_port_range = 1024 65500  ⇦ 修正
+    /sbin/sysctl -p で反映
+    /sbin/sysctl -a | grep xxxx  で確認
 
   semmsl2 は修正不要
   filemax は、/sbin/sysctl -a | grep file-max の値が大きければok
