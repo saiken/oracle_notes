@@ -8,6 +8,7 @@ http://www.oracle.com/technetwork/jp/oem/grid-control/downloads/linuxsoft-100378
 解凍
 VMのCPUを３個に。
   インストールにかなり時間がかかるので。
+メモリも3000Mに変更。
 
 LANGの設定変更(日本語だと、ウインドウ内に収まらなず、やりにくいため）
   export LANG=C
