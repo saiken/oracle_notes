@@ -1,0 +1,81 @@
+EのGrid Control構築
+
+以下から「Oracle Enterprise Manager 10g Grid Control Release 2 (10.2.0.1.1) 」をダウンロード
+http://www.oracle.com/technetwork/jp/oem/grid-control/downloads/linuxsoft-100378-ja.html
+
+※他のバージョンは404になってダウンロードできない。
+
+解凍
+VMのCPUを３個に。
+  インストールにかなり時間がかかるので。
+
+LANGの設定変更(日本語だと、ウインドウ内に収まらなず、やりにくいため）
+  export LANG=C
+
+環境変数をクリアしておく。（念のため）
+  export ORACLE_SID=
+  export ORACLE_BASE=
+  export ORACLE_HOME=
+
+/usr/lib/libdb.so.2があるか確認。なかったら下記実行
+   ln -s /usr/lib/libgdbm.so.2.0.0 /usr/lib/libdb.so.2 
+   → the OPMN Process Manager failed to start ... インストール中にエラーが出るため
+
+インストーラ起動
+  ./runInstaller
+
+  新規DB作成 を選択
+
+  ORACLE_HOMEのパス指定
+   /u01/app/oracle/gridcontrol
+   ※適当
+
+  precheckでカーネルパラメータは正しく設定しておくこと
+  vim /etc/sysctl.conf
+   net.ipv4.ip_local_port_range = 1024 65500  ⇦ 修正
+  /sbin/sysctl -p で反映
+  /sbin/sysctl -a | grep xxxx  で確認
+
+  semmsl2 は修正不要
+  filemax は、/sbin/sysctl -a | grep file-max の値が大きければok
+
+  メール、パッチ、プロキシの設定は何も設定せずにnextクリック
+
+  パスワードは適当に設定
+
+  install クリック
+   途中で1度100%で20分くらい止まったが、待っていると再開された
+
+   the OPMN Process Manager failed to start ... が出たら、↓を実行しcontinue
+   cd /u01/app/oracle/gridcontrol/oms10g/opmn/bin/
+    ./opmnctl start ( allready running が出たので不要かも。)
+ 
+   OMS Configuration でエラー
+    → jdbcがconnectエラーが出ていたが、解決できず。。
+      やり直したら発生しなかったので放置。
+      パスワードに大文字を含んでいたのをやめたくらい。
+
+インストール完了
+
+ログイン画面にアクセス
+
+文字化けしている場合、下記実行
+  インストール時の言語に日本語が選択されていないことが原因です。
+  $ORACLE_HOME/jdk/jre/lib/fonts/ に ALBANWTJ.TTF というファイルが
+  存在するかどうかで確認可能です。
+  存在しない場合は、インストール時に日本語が選択されていません。
+
+  解決方法：
+　１．別環境の正常にインストールされたOracleからファイルを
+　　　コピーする。
+
+　２．キャッシュディレクトリに作成されているファイルを削除する。
+
+　３．OEMを再起動する。
+
+
+VMを再起動すると、DBが起動していないので、下記実行
+  export ORACLE_SID=emrep
+  export ORACLE_HOME=/u01/app/oracle/gridcontrol/db10g
+  /u01/app/oracle/gridcontrol/db10g/bin/sqlplus / as sysdba
+  SQL> startup
