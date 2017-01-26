@@ -1,19 +1,20 @@
-EのGrid Control構築
+■Grid Control構築
 
+◯ダウンロード
 以下から「Oracle Enterprise Manager 10g Grid Control Release 2 (10.2.0.1.1) 」をダウンロード
 http://www.oracle.com/technetwork/jp/oem/grid-control/downloads/linuxsoft-100378-ja.html
 
 ※他のバージョンは404になってダウンロードできない。
 
-解凍
+◯準備作業
 VMのCPUを３個に。
   インストールにかなり時間がかかるので。
-メモリも3000Mに変更。
+  メモリも3000Mに変更。
 
 LANGの設定変更(日本語だと、ウインドウ内に収まらなず、やりにくいため）
   export LANG=C
 
-環境変数をクリアしておく。（念のため）
+環境変数をクリアしておく。（いらないかも。念のため）
   export ORACLE_SID=
   export ORACLE_BASE=
   export ORACLE_HOME=
@@ -22,6 +23,7 @@ LANGの設定変更(日本語だと、ウインドウ内に収まらなず、や
    ln -s /usr/lib/libgdbm.so.2.0.0 /usr/lib/libdb.so.2 
    → the OPMN Process Manager failed to start ... インストール中にエラーが出るため
 
+◯インストール
 インストーラ起動
   ./runInstaller
 
@@ -34,7 +36,7 @@ LANGの設定変更(日本語だと、ウインドウ内に収まらなず、や
   precheckでカーネルパラメータは正しく設定しておくこと
   下記を修正
     vim /etc/sysctl.conf
-     net.ipv4.ip_local_port_range = 1024 65500  ⇦ 修正
+     net.ipv4.ip_local_port_range = 1024 65500  ⇦ に修正
     /sbin/sysctl -p で反映
     /sbin/sysctl -a | grep xxxx  で確認
 
@@ -76,26 +78,25 @@ LANGの設定変更(日本語だと、ウインドウ内に収まらなず、や
 　３．OEMを再起動する。
 
 
-VMを再起動すると、DBが起動していないので、下記実行
+VMを再起動すると、DBが起動していないので、下記実行(Grid Control関連は自動起動されている)
   export ORACLE_SID=emrep
   export ORACLE_HOME=/u01/app/oracle/gridcontrol/db10g
   /u01/app/oracle/gridcontrol/db10g/bin/sqlplus / as sysdba
   SQL> startup
 
+◯エージェントインストールで以下の設定が必要
 ssh でパスワードなしでログインできるように下記実行
   cd OMS_HOME/sysman/prov/resources/scripts
-  ./sshUserSetup.sh -hosts "oracle.vagrantup.com" -user oracle
+  ./sshUserSetup.sh -hosts "ホスト名" -user oracle
 
   詳しくは↓マニュアル参照
   http://otndnld.oracle.co.jp/document/products/oem10/1020/generic/E05934-01/app_agent_deploy_prereq.htm
 
+エージェントインストールで、前提条件チェックでエラー
+  redhat5 が対象OSに入っていないため、一時的にredhat-4 にする。
+  [root@oracle ~]# cp /etc/redhat-release /etc/redhat-release5 -p
+  [root@oracle ~]# echo redhat-4 > /etc/redhat-release
 
-エージェントインストールでハマった点
- エージェントインストールで、前提条件チェックでエラー
-   redhat5 が対象OSに入っていないため、一時的にredhat-4 にする。
-   [root@oracle ~]# cp /etc/redhat-release /etc/redhat-release5 -p
-   [root@oracle ~]# echo redhat-4 > /etc/redhat-release
-
- TimeZone が設定されていないので、エラー
-   ターゲットホストのoracleユーザーの.bashrc に下記追記
-   export TZ=UTC
+TimeZone が設定されていないので、エラー
+  ターゲットホストのoracleユーザーの.bashrc に下記追記
+  export TZ=UTC
