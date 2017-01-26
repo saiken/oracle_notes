@@ -88,3 +88,14 @@ ssh でパスワードなしでログインできるように下記実行
 
   詳しくは↓マニュアル参照
   http://otndnld.oracle.co.jp/document/products/oem10/1020/generic/E05934-01/app_agent_deploy_prereq.htm
+
+
+エージェントインストールでハマった点
+ エージェントインストールで、前提条件チェックでエラー
+   redhat5 が対象OSに入っていないため、一時的にredhat-4 にする。
+   [root@oracle ~]# cp /etc/redhat-release /etc/redhat-release5 -p
+   [root@oracle ~]# echo redhat-4 > /etc/redhat-release
+
+ TimeZone が設定されていないので、エラー
+   ターゲットホストのoracleユーザーの.bashrc に下記追記
+   export TZ=UTC
